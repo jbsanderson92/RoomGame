@@ -88,6 +88,7 @@ public class RoomGame {
                     finishedStateHandler();
                     break;
                 case EXIT:
+                    printf("Game ended.\n");
                     return;
             }
         }
@@ -106,7 +107,7 @@ public class RoomGame {
             printCommands();
         }
     }
-    
+
     private void playingStateHandler() {
         Command cmd = getConsoleCommand();
         switch (cmd) {
@@ -135,17 +136,24 @@ public class RoomGame {
                 state = GameState.FINISHED;
                 break;
             default:
-                printf("You can't use that right now (%s).", cmd.cmdString);
+                printf("You can't use that right now (%s).\n", cmd.cmdString);
         }
     }
-    
+
     private void finishedStateHandler() {
-        printf("Thanks for playing%s\n", 
-                currentPlayer == null ? "!" : currentPlayer.getName() + "!"
+        printf("Thanks for playing%s\n",
+                currentPlayer == null ? "!" : " " + currentPlayer.getName() + "!"
         );
-        state = GameState.EXIT;
+        printf("Do you want to start over? (Y/N) > ");
+        String resp = consoleInput.nextLine();
+        if (resp.equals("Y")) {
+            printf("starting over...\n");
+            state = GameState.START;
+        } else {
+            state = GameState.EXIT;
+        }
     }
-    
+
     private void takeRoomItems() {
         Item[] items = currentRoom.takeItems();
         if (items != null) {
@@ -155,7 +163,7 @@ public class RoomGame {
             printf("There nothing here...\n");
         }
     }
-    
+
     private void moveRooms(Direction dir) {
         Room next = currentRoom.exit(dir);
         if (next != null) {
@@ -190,7 +198,7 @@ public class RoomGame {
         currentRoom = roomOne;
         state = GameState.PLAYING;
     }
-    
+
     private Item[] getRandomItems(int maxCount) {
         Random rand = new Random();
         int numItems = rand.nextInt(maxCount);
@@ -209,9 +217,9 @@ public class RoomGame {
     }
 
     private Command getConsoleCommand() {
-        printf("enter command > ");
         Command cmd = null;
         while (cmd == null) {
+            printf("enter command > ");
             String input = consoleInput.nextLine();
             cmd = Command.forString(input);
             if (cmd == null) {
@@ -227,18 +235,18 @@ public class RoomGame {
             printf("\t%s\n", c.cmdString);
         }
     }
-    
+
     private void printRooms(List<Room> rooms) {
         printf("Rooms:\n");
         for (Room r : rooms) {
             printf("\t%s\n", r);
         }
     }
-    
+
     private void printCurrentRoom() {
         printf("you are in %s\n", currentRoom);
     }
-    
+
     private void printInventory() {
         printf("Inventory:\n");
         printf("\tBackpack weight: %d lbs\n", currentPlayer.backpackWeight());
